@@ -166,9 +166,9 @@ Resources:
               RunOrder: '3'
 
   ModelTrainingProject:
-    Type: AWS::CodeBuild::Project
-    Properties:
-      Name: !Sub ${AWS::StackName}-pipeline-modeltraining
+    Type: AWS::CodeBuild::Projectdfghjk
+    Properties:dfghjkklllllllllllllll
+      Name: !Sub ${AWS::StackName}-pipeline-modeltrainingdfghjk
       Description: Trains machine learning model using SageMaker
       ServiceRole: !GetAtt CodeBuildRole.Arn
       Artifacts:
