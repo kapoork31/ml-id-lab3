@@ -9,6 +9,8 @@ glue_database = sys.argv[2]
 
 current_timestamp = time.strftime('%Y-%m-%d-%H-%M-%S', time.gmtime())
 
+print('sfdsf')
+
 #Function for executing athena queries
 def run_query(query, database, s3_output):
     client = boto3.client('athena')
