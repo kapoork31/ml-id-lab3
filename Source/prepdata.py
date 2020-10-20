@@ -2,7 +2,7 @@ import boto3, csv, io, json, re, os, sys, pprint, time, random
 from time import gmtime, strftime
 from botocore.client import Config
 import numpy as np
-from scipy.sparse import lil_matrix
+#from scipy.sparse import lil_matrix
 
 bucket = sys.argv[1]
 glue_database = sys.argv[2]

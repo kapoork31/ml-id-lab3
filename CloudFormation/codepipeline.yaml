@@ -187,6 +187,7 @@ Resources:
                 - echo "Installing boto3 and sagemaker"
                 - pip3 install boto3
                 - pip3 install sagemaker
+                - pip3 install scipy
             build:
               commands:
                 - echo "Running prepdata.py"
