@@ -29,6 +29,9 @@ stack_name = sys.argv[3]
 commit_id = sys.argv[4]
 commit_id = commit_id[0:7]
 
+files = os.listdir('.')
+print(files)
+
 #
 # load parameters created by previous data prep step
 #
@@ -118,7 +121,7 @@ hyperparameters = {'epochs': 10, 'batch_size': 8, 'learning_rate': 0.01}
 
 estimator = TensorFlow(
                        py_version="py37",
-                       source_dir='training',
+                       source_dir='source/training',
                        entry_point='script_train.py',
                        model_dir=model_dir,
                        train_instance_type=train_instance_type,
