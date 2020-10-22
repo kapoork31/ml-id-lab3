@@ -117,6 +117,7 @@ distributions = {'parameter_server': {'enabled': True}}
 hyperparameters = {'epochs': 10, 'batch_size': 8, 'learning_rate': 0.01}
 
 estimator = TensorFlow(
+                       py_version="py37",
                        source_dir='training',
                        entry_point='script_train.py',
                        model_dir=model_dir,
@@ -125,7 +126,7 @@ estimator = TensorFlow(
                        hyperparameters=hyperparameters,
                        role=sagemaker.get_execution_role(),
                        base_job_name='tf-fizzyo-breaths',
-                       framework_version='1.13',
+                       framework_version='2.2',
                        distributions = distributions,
                        script_mode=True)
 
