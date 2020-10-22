@@ -129,7 +129,7 @@ estimator = TensorFlow(
                        hyperparameters=hyperparameters,
                        role = role,
                        base_job_name='tf-fizzyo-breaths',
-                       framework_version='2.2',
+                       framework_version='1.13',
                        distributions = distributions,
                        script_mode=True)
 
