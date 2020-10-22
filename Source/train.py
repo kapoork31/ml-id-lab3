@@ -2,6 +2,7 @@ import sagemaker
 import sagemaker.amazon.common as smac
 from sagemaker import get_execution_role
 from sagemaker.predictor import json_deserializer
+from sagemaker.tensorflow import TensorFlow
 from sagemaker.tuner import HyperparameterTuner, IntegerParameter, ContinuousParameter, CategoricalParameter
 import boto3, csv, io, json, re, os, sys, pprint, time, random
 from time import gmtime, strftime
@@ -92,8 +93,45 @@ s3.Bucket(bucket).download_file(data_key_x_test, 'x_test.npy')
 s3.Bucket(bucket).download_file(data_key_y_train, 'y_train.npy')
 s3.Bucket(bucket).download_file(data_key_y_test, 'y_test.npy')
 
-#print(X_train.shape)
-#print(Y_train.shape)
+x_train = np.load('x_train.npy')
+#x_test = np.load('x_test.npy')
+#y_train = np.load('y_train.npy')
+#y_test = np.load('y_test.npy')
+print(x_train.shape)
+
+data_key = 'data'
+data_location = 's3://{}/{}/'.format(bucket, data_key)
+#print(data_location)
+inputs = {'train':data_location}
+print(inputs)
+
+import sagemaker
+from sagemaker.tensorflow import TensorFlow
+
+model_dir = '/opt/ml/model'
+train_instance_type='ml.c5.xlarge'
+instance_count = 2
+
+distributions = {'parameter_server': {'enabled': True}}
+
+hyperparameters = {'epochs': 10, 'batch_size': 8, 'learning_rate': 0.01}
+
+estimator = TensorFlow(
+                       source_dir='training',
+                       entry_point='script_train.py',
+                       model_dir=model_dir,
+                       train_instance_type=train_instance_type,
+                       train_instance_count=instance_count,
+                       hyperparameters=hyperparameters,
+                       role=sagemaker.get_execution_role(),
+                       base_job_name='tf-fizzyo-breaths',
+                       framework_version='1.13',
+                       distributions = distributions,
+                       script_mode=True)
+
+estimator.fit(inputs)
+print('sdf')
+#print(x_test.shape)
 #assert X_train.shape == (nbRatingsTrain, nbFeatures)
 #assert Y_train.shape == (nbRatingsTrain, )
 #zero_labels = np.count_nonzero(Y_train)
@@ -109,30 +147,30 @@ s3.Bucket(bucket).download_file(data_key_y_test, 'y_test.npy')
 #
 # Convert to protobuf and save to S3
 #
-prefix = 'sagemaker/fm-movielens-pipeline'
+#prefix = 'sagemaker/fm-movielens-pipeline'
 
-train_key      = 'train.protobuf'
-train_prefix   = '{}/{}'.format(prefix, 'train')
+#train_key      = 'train.protobuf'
+#train_prefix   = '{}/{}'.format(prefix, 'train')
 
-test_key       = 'test.protobuf'
-test_prefix    = '{}/{}'.format(prefix, 'test')
+#test_key       = 'test.protobuf'
+#test_prefix    = '{}/{}'.format(prefix, 'test')
 
-output_prefix  = 's3://{}/{}/output'.format(bucket, prefix)
+#output_prefix  = 's3://{}/{}/output'.format(bucket, prefix)
 
-def writeDatasetToProtobuf(X, Y, bucket, prefix, key):
-    buf = io.BytesIO()
-    smac.write_spmatrix_to_sparse_tensor(buf, X, Y)
-    buf.seek(0)
-    obj = '{}/{}'.format(prefix, key)
-    boto3.resource('s3').Bucket(bucket).Object(obj).upload_fileobj(buf)
-    return 's3://{}/{}'.format(bucket,obj)
+#def writeDatasetToProtobuf(X, Y, bucket, prefix, key):
+#    buf = io.BytesIO()
+#    smac.write_spmatrix_to_sparse_tensor(buf, X, Y)
+#    buf.seek(0)
+#    obj = '{}/{}'.format(prefix, key)
+#    boto3.resource('s3').Bucket(bucket).Object(obj).upload_fileobj(buf)
+#    return 's3://{}/{}'.format(bucket,obj)
 
-train_data = writeDatasetToProtobuf(X_train, Y_train, bucket, train_prefix, train_key)
-test_data  = writeDatasetToProtobuf(X_test, Y_test, bucket, test_prefix, test_key)
+#train_data = writeDatasetToProtobuf(X_train, Y_train, bucket, train_prefix, train_key)
+#test_data  = writeDatasetToProtobuf(X_test, Y_test, bucket, test_prefix, test_key)
 
-print(train_data)
-print(test_data)
-print('Output: {}'.format(output_prefix))
+#print(train_data)
+#print(test_data)
+#print('Output: {}'.format(output_prefix))
 
 best_model = ""
 
