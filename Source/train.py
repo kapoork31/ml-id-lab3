@@ -121,7 +121,7 @@ hyperparameters = {'epochs': 10, 'batch_size': 8, 'learning_rate': 0.01}
 
 estimator = TensorFlow(
                        py_version="py37",
-                       source_dir='source/training',
+                       source_dir='Source/training',
                        entry_point='script_train.py',
                        model_dir=model_dir,
                        train_instance_type=train_instance_type,
