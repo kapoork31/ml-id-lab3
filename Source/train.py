@@ -120,7 +120,7 @@ distributions = {'parameter_server': {'enabled': True}}
 hyperparameters = {'epochs': 10, 'batch_size': 8, 'learning_rate': 0.01}
 
 estimator = TensorFlow(
-                       py_version="py37",
+                       py_version="py3",
                        source_dir='Source/training',
                        entry_point='script_train.py',
                        model_dir=model_dir,
