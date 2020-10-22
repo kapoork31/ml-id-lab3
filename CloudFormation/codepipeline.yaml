@@ -186,7 +186,7 @@ Resources:
               commands:
                 - echo "Installing boto3 and sagemaker"
                 - pip3 install boto3
-                - pip install sf3s
+                - pip install s3fs
                 - pip3 install sagemaker
             build:
               commands:

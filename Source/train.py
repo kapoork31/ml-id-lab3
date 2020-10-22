@@ -86,10 +86,10 @@ data_key_x_test = 'data/x_test.npy'
 data_key_y_train =  'data/y_train.npy'
 data_key_y_test = 'data/y_test.npy'
 
-x_train = np.load(s3.open('{}/{}'.format(bucket, data_key_x_train))
-y_train = np.load(s3.open('{}/{}'.format(bucket, data_key_y_train))
-x_test = np.load(s3.open('{}/{}'.format(bucket, data_key_x_test))
-y_test = np.load(s3.open('{}/{}'.format(bucket, data_key_y_test))
+x_train = np.load(s3.open('{}/{}'.format(bucket, data_key_x_train)))
+y_train = np.load(s3.open('{}/{}'.format(bucket, data_key_y_train)))
+x_test = np.load(s3.open('{}/{}'.format(bucket, data_key_x_test)))
+y_test = np.load(s3.open('{}/{}'.format(bucket, data_key_y_test)))
 
 
 #print(X_train.shape)
@@ -99,12 +99,12 @@ y_test = np.load(s3.open('{}/{}'.format(bucket, data_key_y_test))
 #zero_labels = np.count_nonzero(Y_train)
 #print("Training labels: %d zeros, %d ones" % (zero_labels, nbRatingsTrain-zero_labels))
 
-print(X_test.shape)
-print(Y_test.shape)
-assert X_test.shape  == (nbRatingsTest, nbFeatures)
-assert Y_test.shape  == (nbRatingsTest, )
-zero_labels = np.count_nonzero(Y_test)
-print("Test labels: %d zeros, %d ones" % (zero_labels, nbRatingsTest-zero_labels))
+print(x_train.shape)
+print(y_train.shape)
+#assert X_test.shape  == (nbRatingsTest, nbFeatures)
+#assert Y_test.shape  == (nbRatingsTest, )
+#zero_labels = np.count_nonzero(Y_test)
+#print("Test labels: %d zeros, %d ones" % (zero_labels, nbRatingsTest-zero_labels))
 
 #
 # Convert to protobuf and save to S3
