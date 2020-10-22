@@ -3,13 +3,12 @@ import sagemaker.amazon.common as smac
 from sagemaker import get_execution_role
 from sagemaker.predictor import json_deserializer
 from sagemaker.tuner import HyperparameterTuner, IntegerParameter, ContinuousParameter, CategoricalParameter
-
 import boto3, csv, io, json, re, os, sys, pprint, time, random
 from time import gmtime, strftime
 from botocore.client import Config
 import numpy as np
-from scipy.sparse import lil_matrix
-
+from s3fs.core import S3FileSystem
+s3 = S3FileSystem()
 # sagemaker containers for factorization machines
 containers = {'us-west-2': '174872318107.dkr.ecr.us-west-2.amazonaws.com/factorization-machines:latest',
              'us-east-1': '382416733822.dkr.ecr.us-east-1.amazonaws.com/factorization-machines:latest',
@@ -32,59 +31,73 @@ commit_id = commit_id[0:7]
 #
 # load parameters created by previous data prep step
 #
-with open('prepdata_result.json', 'r') as prepdata_result_file:
-    prepdata_result = json.load(prepdata_result_file)
+#with open('prepdata_result.json', 'r') as prepdata_result_file:
+#    prepdata_result = json.load(prepdata_result_file)#
 
-nbUsers = prepdata_result["Parameters"]["NbUsers"]
-nbFeatures = prepdata_result["Parameters"]["NbFeatures"]
-nbRatingsTrain = prepdata_result["Parameters"]["NbRatingsTrain"]
-nbRatingsTest = prepdata_result["Parameters"]["NbRatingsTest"]
-trainingData = prepdata_result["Parameters"]["TrainingData"]
-testData = prepdata_result["Parameters"]["TestData"]
+#nbUsers = prepdata_result["Parameters"]["NbUsers"]
+#nbFeatures = prepdata_result["Parameters"]["NbFeatures"]
+#nbRatingsTrain = prepdata_result["Parameters"]["NbRatingsTrain"]
+#nbRatingsTest = prepdata_result["Parameters"]["NbRatingsTest"]
+#trainingData = prepdata_result["Parameters"]["TrainingData"]
+#testData = prepdata_result["Parameters"]["TestData"]
 
 # For each user, build a list of rated movies.
 # We'd need this to add random negative samples.
-moviesByUser = {}
-for userId in range(nbUsers):
-    moviesByUser[str(userId)]=[]
+#moviesByUser = {}
+#for userId in range(nbUsers):
+#    moviesByUser[str(userId)]=[]
 
-with open(trainingData,'r') as f:
-    samples=csv.reader(f,delimiter='\t')
-    for userId,movieId,rating,timestamp in samples:
-        moviesByUser[str(int(userId)-1)].append(int(movieId)-1)
+#with open(trainingData,'r') as f:
+#    samples=csv.reader(f,delimiter='\t')
+#    for userId,movieId,rating,timestamp in samples:
+#        moviesByUser[str(int(userId)-1)].append(int(movieId)-1)
 
 #
 # Build training set and test set
 #
-def loadDataset(filename, lines, columns):
-    # Features are one-hot encoded in a sparse matrix
-    X = lil_matrix((lines, columns)).astype('float32')
-    # Labels are stored in a vector
-    Y = []
-    line=0
-    with open(filename,'r') as f:
-        samples=csv.reader(f,delimiter='\t')
-        for userId,movieId,rating,timestamp in samples:
-            X[line,int(userId)-1] = 1
-            X[line,int(nbUsers)+int(movieId)-1] = 1
-            if int(rating) >= 4:
-                Y.append(1)
-            else:
-                Y.append(0)
-            line=line+1
+#def loadDataset(filename, lines, columns):
+#    # Features are one-hot encoded in a sparse matrix
+#    X = lil_matrix((lines, columns)).astype('float32')
+#    # Labels are stored in a vector
+#    Y = []
+#    line=0
+#    with open(filename,'r') as f:
+#        samples=csv.reader(f,delimiter='\t')
+#        for userId,movieId,rating,timestamp in samples:
+#            X[line,int(userId)-1] = 1
+#            X[line,int(nbUsers)+int(movieId)-1] = 1
+#            if int(rating) >= 4:
+#                Y.append(1)
+#            else:
+#                Y.append(0)
+#            line=line+1
+#
+#    Y=np.array(Y).astype('float32')
+#    return X,Y
 
-    Y=np.array(Y).astype('float32')
-    return X,Y
 
-X_train, Y_train = loadDataset(trainingData, nbRatingsTrain, nbFeatures)
-X_test, Y_test = loadDataset(testData,nbRatingsTest,nbFeatures)
 
-print(X_train.shape)
-print(Y_train.shape)
-assert X_train.shape == (nbRatingsTrain, nbFeatures)
-assert Y_train.shape == (nbRatingsTrain, )
-zero_labels = np.count_nonzero(Y_train)
-print("Training labels: %d zeros, %d ones" % (zero_labels, nbRatingsTrain-zero_labels))
+#X_train, Y_train = loadDataset(trainingData, nbRatingsTrain, nbFeatures)
+#X_test, Y_test = loadDataset(testData,nbRatingsTest,nbFeatures)
+
+
+data_key_x_train = 'data/x_train.npy'
+data_key_x_test = 'data/x_test.npy'
+data_key_y_train =  'data/y_train.npy'
+data_key_y_test = 'data/y_test.npy'
+
+x_train = np.load(s3.open('{}/{}'.format(bucket, data_key_x_train))
+y_train = np.load(s3.open('{}/{}'.format(bucket, data_key_y_train))
+x_test = np.load(s3.open('{}/{}'.format(bucket, data_key_x_test))
+y_test = np.load(s3.open('{}/{}'.format(bucket, data_key_y_test))
+
+
+#print(X_train.shape)
+#print(Y_train.shape)
+#assert X_train.shape == (nbRatingsTrain, nbFeatures)
+#assert Y_train.shape == (nbRatingsTrain, )
+#zero_labels = np.count_nonzero(Y_train)
+#print("Training labels: %d zeros, %d ones" % (zero_labels, nbRatingsTrain-zero_labels))
 
 print(X_test.shape)
 print(Y_test.shape)

@@ -186,12 +186,10 @@ Resources:
               commands:
                 - echo "Installing boto3 and sagemaker"
                 - pip3 install boto3
+                - pip install sf3s
                 - pip3 install sagemaker
-                - pip3 install scipy
             build:
               commands:
-                - echo "Running prepdata.py"
-                - python3 Source/prepdata.py "${YourInitials}-ml-id-lab" "${YourInitials}-ml-lab-movielens"
                 - echo "Running train.py"
                 - python3 Source/train.py "${SagemakerRole.Arn}" "${YourInitials}-ml-id-lab" "${AWS::StackName}" $CODEBUILD_RESOLVED_SOURCE_VERSION
             post_build:
