@@ -127,7 +127,6 @@ estimator = TensorFlow(
                        train_instance_type=train_instance_type,
                        train_instance_count=instance_count,
                        hyperparameters=hyperparameters,
-                       role=sagemaker.get_execution_role(),
                        base_job_name='tf-fizzyo-breaths',
                        framework_version='2.2',
                        distributions = distributions,
