@@ -140,6 +140,29 @@ print('sdf')
 #assert Y_train.shape == (nbRatingsTrain, )
 #zero_labels = np.count_nonzero(Y_train)
 #print("Training labels: %d zeros, %d ones" % (zero_labels, nbRatingsTrain-zero_labels))
+model = estimator.model_data
+json_test_path = 's3://{}/{}'.format(bucket, 'data/test_json.json')
+output_path  = 's3://{}/{}'.format(bucket, 'test_data')
+
+from sagemaker.tensorflow.serving import Model
+#from sagemaker.tensorflow import TensorFlowModel
+from sagemaker import get_execution_role
+sagemaker_session = sagemaker.Session()
+role = get_execution_role()
+
+tensorflow_serving_model = Model(model_data=model,
+                                 role=role,
+                                 framework_version='1.13',
+                                 sagemaker_session=sagemaker_session)
+
+transformer = tensorflow_serving_model.transformer(
+    instance_count=1,
+    instance_type='ml.m5.large',
+    output_path=output_path
+)
+
+transformer.transform(data=json_test_path, content_type='application/json')
+transformer.wait()
 
 #print(x_train.shape)
 #print(y_train.shape)
@@ -176,103 +199,103 @@ print('sdf')
 #print(test_data)
 #print('Output: {}'.format(output_prefix))
 
-best_model = ""
+#best_model = ""
 
-job_name = stack_name + "-" + commit_id
+#job_name = stack_name + "-" + commit_id
 
-fm = sagemaker.estimator.Estimator(containers[boto3.Session().region_name],
-                                   role,
-                                   train_instance_count=1,
-                                   train_instance_type='ml.c4.xlarge',
-                                   output_path=output_prefix,
-                                   base_job_name=job_name,
-                                   sagemaker_session=sagemaker.Session())
+#fm = sagemaker.estimator.Estimator(containers[boto3.Session().region_name],
+                                   #role,
+                                   #train_instance_count=1,
+                                   #train_instance_type='ml.c4.xlarge',
+                                   #output_path=output_prefix,
+                                   #base_job_name=job_name,
+                                   #sagemaker_session=sagemaker.Session())
 
-no_hyper_parameter_tuning = False
+#no_hyper_parameter_tuning = False
 
-if (no_hyper_parameter_tuning):
+#if (no_hyper_parameter_tuning):
     #
     # Run the training job
     #
-    fm.set_hyperparameters(feature_dim=nbFeatures,
-                          predictor_type='binary_classifier',
-                          mini_batch_size=1000,
-                          num_factors=64,
-                          epochs=100)
+#    fm.set_hyperparameters(feature_dim=nbFeatures,
+#                          predictor_type='binary_classifier',
+#                          mini_batch_size=1000,
+#                          num_factors=64,
+#                          epochs=100)
 
-    fm.fit({'train': train_data, 'test': test_data})
+#    fm.fit({'train': train_data, 'test': test_data})
 
-    best_model = fm.model_data
-else:
-    fm.set_hyperparameters(feature_dim=nbFeatures,
-                          predictor_type='binary_classifier',
-                          mini_batch_size=1000,
-                          num_factors=64,
-                          epochs=100)
+#    best_model = fm.model_data
+#else:
+#    fm.set_hyperparameters(feature_dim=nbFeatures,
+#                          predictor_type='binary_classifier',
+#                          mini_batch_size=1000,
+#                          num_factors=64,
+#                          epochs=100)
 
-    my_tuner = HyperparameterTuner(
-        estimator=fm,
-        objective_metric_name='test:binary_classification_accuracy',
-        hyperparameter_ranges={
-            'epochs': IntegerParameter(1, 200),
-            'mini_batch_size': IntegerParameter(10, 10000),
-            'factors_wd': ContinuousParameter(1e-8, 512)},
-        max_jobs=4,
-        max_parallel_jobs=4)
+#    my_tuner = HyperparameterTuner(
+#        estimator=fm,
+#        objective_metric_name='test:binary_classification_accuracy',
+#        hyperparameter_ranges={
+#            'epochs': IntegerParameter(1, 200),
+#            'mini_batch_size': IntegerParameter(10, 10000),
+#            'factors_wd': ContinuousParameter(1e-8, 512)},
+#        max_jobs=4,
+#        max_parallel_jobs=4)
 
-    my_tuner.fit({'train': train_data, 'test': test_data}, include_cls_metadata = False)
+#    my_tuner.fit({'train': train_data, 'test': test_data}, include_cls_metadata = False)
 
-    my_tuner.wait()
+#    my_tuner.wait()
 
     #sm_session = sagemaker.Session()
     #best_log = sm_session.logs_for_job(my_tuner.best_training_job())
     #print(best_log)
-    best_model = '{}/{}/output/model.tar.gz'.format(output_prefix, my_tuner.best_training_job())
+#    best_model = '{}/{}/output/model.tar.gz'.format(output_prefix, my_tuner.best_training_job())
 
-print('Best model: {}'.format(best_model))
+#print('Best model: {}'.format(best_model))
 #
 # Save config files to be used later for qa and prod sagemaker endpoint configurations
 # and for prediction tests
 #
-config_data_qa = {
-  "Parameters":
-    {
-        "BucketName": bucket,
-        "CommitID": commit_id,
-        "Environment": "qa",
-        "ParentStackName": stack_name,
-        "ModelData": best_model,
-        "ContainerImage": containers[boto3.Session().region_name],
-        "Timestamp": current_timestamp
-    }
-}
+#config_data_qa = {
+#  "Parameters":
+#    {
+#        "BucketName": bucket,
+#        "CommitID": commit_id,
+#        "Environment": "qa",
+#        "ParentStackName": stack_name,
+#        "ModelData": best_model,
+#        "ContainerImage": containers[boto3.Session().region_name],
+#        "Timestamp": current_timestamp
+#    }
+#}
 
-config_data_prod = {
-  "Parameters":
-    {
-        "BucketName": bucket,
-        "CommitID": commit_id,
-        "Environment": "prod",
-        "ParentStackName": stack_name,
-        "ModelData": best_model,
-        "ContainerImage": containers[boto3.Session().region_name],
-        "Timestamp": current_timestamp
-    }
-}
+#config_data_prod = {
+#  "Parameters":
+#    {
+#        "BucketName": bucket,
+#        "CommitID": commit_id,
+#        "Environment": "prod",
+#        "ParentStackName": stack_name,
+#        "ModelData": best_model,
+#        "ContainerImage": containers[boto3.Session().region_name],
+#        "Timestamp": current_timestamp
+#    }
+#}
 
-pprint.pprint(config_data_qa)
-pprint.pprint(config_data_prod)
+#pprint.pprint(config_data_qa)
+#pprint.pprint(config_data_prod)
 
-json_config_data_qa = json.dumps(config_data_qa)
-json_config_data_prod = json.dumps(config_data_prod)
+#json_config_data_qa = json.dumps(config_data_qa)
+#json_config_data_prod = json.dumps(config_data_prod)
 
-f = open( './CloudFormation/configuration_qa.json', 'w' )
-f.write(json_config_data_qa)
-f.close()
+#f = open( './CloudFormation/configuration_qa.json', 'w' )
+#f.write(json_config_data_qa)
+#f.close()
 
-f = open( './CloudFormation/configuration_prod.json', 'w' )
-f.write(json_config_data_prod)
-f.close()
+#f = open( './CloudFormation/configuration_prod.json', 'w' )
+#f.write(json_config_data_prod)
+#f.close()
 
 end = time.time()
 print(end - start)
