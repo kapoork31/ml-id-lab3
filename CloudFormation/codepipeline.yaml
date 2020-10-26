@@ -186,7 +186,6 @@ Resources:
               commands:
                 - echo "Installing boto3 and sagemaker"
                 - pip3 install boto3
-                - pip install s3fs
                 - pip3 install sagemaker
             build:
               commands:
@@ -213,7 +212,7 @@ Resources:
       Environment:
         Type: LINUX_CONTAINER
         ComputeType: BUILD_GENERAL1_SMALL
-        Image: aws/codebuild/python:3.4.5
+        Image: aws/codebuild/python:3.7.1-1.7.0
       Source:
         Type: CODEPIPELINE
         BuildSpec: !Sub |
@@ -227,7 +226,7 @@ Resources:
             build:
               commands:
                 - echo "Running test.py"
-                - python3 Source/test.py "qa-${AWS::StackName}" "prepdata_result.json" "CloudFormation/configuration_qa.json"
+                - python3 Source/test.py "qa-${AWS::StackName}" "CloudFormation/configuration_qa.json"
       TimeoutInMinutes: 30
 
   TestEndpointProjectProd:
@@ -241,7 +240,7 @@ Resources:
       Environment:
         Type: LINUX_CONTAINER
         ComputeType: BUILD_GENERAL1_SMALL
-        Image: aws/codebuild/python:3.4.5
+        Image: aws/codebuild/python:3.7.1-1.7.0
       Source:
         Type: CODEPIPELINE
         BuildSpec: !Sub |
@@ -255,7 +254,7 @@ Resources:
             build:
               commands:
                 - echo "Running test.py"
-                - python3 Source/test.py "prod-${AWS::StackName}" "prepdata_result.json" "CloudFormation/configuration_prod.json"
+                - python3 Source/test.py "prod-${AWS::StackName}" "CloudFormation/configuration_prod.json"
       TimeoutInMinutes: 30
 
 

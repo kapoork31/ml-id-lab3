@@ -8,8 +8,7 @@ import boto3, csv, io, json, re, os, sys, pprint, time, random
 from time import gmtime, strftime
 from botocore.client import Config
 import numpy as np
-from s3fs.core import S3FileSystem
-s3 = S3FileSystem()
+
 # sagemaker containers for factorization machines
 containers = {'us-west-2': '174872318107.dkr.ecr.us-west-2.amazonaws.com/factorization-machines:latest',
              'us-east-1': '382416733822.dkr.ecr.us-east-1.amazonaws.com/factorization-machines:latest',
@@ -112,7 +111,7 @@ import sagemaker
 from sagemaker.tensorflow import TensorFlow
 
 model_dir = '/opt/ml/model'
-train_instance_type='ml.c5.xlarge'
+train_instance_type='ml.m5.large'
 instance_count = 2
 
 distributions = {'parameter_server': {'enabled': True}}
@@ -134,7 +133,7 @@ estimator = TensorFlow(
                        script_mode=True)
 
 estimator.fit(inputs)
-print('sdf')
+#print('sdf')
 #print(x_test.shape)
 #assert X_train.shape == (nbRatingsTrain, nbFeatures)
 #assert Y_train.shape == (nbRatingsTrain, )
@@ -161,7 +160,7 @@ transformer = tensorflow_serving_model.transformer(
     output_path=output_path
 )
 
-transformer.transform(data=json_test_path, content_type='application/json')
+transformer.transform(json_test_path, content_type='application/json')
 transformer.wait()
 
 #print(x_train.shape)
@@ -257,45 +256,45 @@ transformer.wait()
 # Save config files to be used later for qa and prod sagemaker endpoint configurations
 # and for prediction tests
 #
-#config_data_qa = {
-#  "Parameters":
-#    {
-#        "BucketName": bucket,
-#        "CommitID": commit_id,
-#        "Environment": "qa",
-#        "ParentStackName": stack_name,
-#        "ModelData": best_model,
-#        "ContainerImage": containers[boto3.Session().region_name],
-#        "Timestamp": current_timestamp
-#    }
-#}
+config_data_qa = {
+  "Parameters":
+    {
+        "BucketName": bucket,
+        "CommitID": commit_id,
+        "Environment": "qa",
+        "ParentStackName": stack_name,
+        "ModelData": model,
+        "ContainerImage": containers[boto3.Session().region_name],
+        "Timestamp": current_timestamp
+    }
+}
 
-#config_data_prod = {
-#  "Parameters":
-#    {
-#        "BucketName": bucket,
-#        "CommitID": commit_id,
-#        "Environment": "prod",
-#        "ParentStackName": stack_name,
-#        "ModelData": best_model,
-#        "ContainerImage": containers[boto3.Session().region_name],
-#        "Timestamp": current_timestamp
-#    }
-#}
+config_data_prod = {
+  "Parameters":
+    {
+        "BucketName": bucket,
+        "CommitID": commit_id,
+        "Environment": "prod",
+        "ParentStackName": stack_name,
+        "ModelData": model,
+        "ContainerImage": containers[boto3.Session().region_name],
+        "Timestamp": current_timestamp
+    }
+}
 
 #pprint.pprint(config_data_qa)
 #pprint.pprint(config_data_prod)
 
-#json_config_data_qa = json.dumps(config_data_qa)
-#json_config_data_prod = json.dumps(config_data_prod)
+json_config_data_qa = json.dumps(config_data_qa)
+json_config_data_prod = json.dumps(config_data_prod)
 
-#f = open( './CloudFormation/configuration_qa.json', 'w' )
-#f.write(json_config_data_qa)
-#f.close()
+f = open( './CloudFormation/configuration_qa.json', 'w' )
+f.write(json_config_data_qa)
+f.close()
 
-#f = open( './CloudFormation/configuration_prod.json', 'w' )
-#f.write(json_config_data_prod)
-#f.close()
+f = open( './CloudFormation/configuration_prod.json', 'w' )
+f.write(json_config_data_prod)
+f.close()
 
 end = time.time()
 print(end - start)
