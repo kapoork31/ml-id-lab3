@@ -124,5 +124,5 @@ acc = match/len(pred)
 #match_rate = matches / nb_predictions
 #print("Match Rate: %s" % (match_rate))
 
-If match rate is not 80% we throw an error that will break the codepipeline test stage
+#If match rate is not 80% we throw an error that will break the codepipeline test stage
 assert acc >= 0.80
