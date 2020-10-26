@@ -53,9 +53,8 @@ pred=np.array(result)
 pred = pred.argmax(axis = 1).tolist()
 y_test_pred = y_test.argmax(axis = 1).tolist()
 
-if((stage == 'qa') or (stage == 'prod')){
+if((stage == 'qa') or (stage == 'prod')):
     predictor.delete_endpoint()
-}
 
 match = 0
 for i,x in enumerate(pred):
