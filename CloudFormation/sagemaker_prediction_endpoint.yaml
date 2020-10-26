@@ -1,4 +1,4 @@
-AWSTemplateFormatVersion: '2010-09-09'
+nAWSTemplateFormatVersion: '2010-09-09'
 Description: 'AWS SageMaker Endpoint'
 Parameters:
   BucketName:
@@ -60,5 +60,5 @@ Resources:
         - ModelName: !GetAtt Model.ModelName
           VariantName: AllTraffic
           InitialInstanceCount: 1
-          InstanceType: ml.c4.2xlarge
+          InstanceType: ml.t2.medium
           InitialVariantWeight: 1

@@ -95,11 +95,11 @@ s3.Bucket(bucket).download_file(data_key_x_test, 'x_test.npy')
 s3.Bucket(bucket).download_file(data_key_y_train, 'y_train.npy')
 s3.Bucket(bucket).download_file(data_key_y_test, 'y_test.npy')
 
-x_train = np.load('x_train.npy')
+#x_train = np.load('x_train.npy')
 #x_test = np.load('x_test.npy')
 #y_train = np.load('y_train.npy')
 #y_test = np.load('y_test.npy')
-print(x_train.shape)
+#print(x_train.shape)
 
 data_key = 'data'
 data_location = 's3://{}/{}/'.format(bucket, data_key)
@@ -116,7 +116,7 @@ instance_count = 2
 
 distributions = {'parameter_server': {'enabled': True}}
 
-hyperparameters = {'epochs': 10, 'batch_size': 8, 'learning_rate': 0.01}
+hyperparameters = {'epochs': 1, 'batch_size': 8, 'learning_rate': 0.01}
 
 estimator = TensorFlow(
                        py_version="py3",
@@ -149,19 +149,19 @@ from sagemaker import get_execution_role
 sagemaker_session = sagemaker.Session()
 role = get_execution_role()
 
-tensorflow_serving_model = Model(model_data=model,
-                                 role=role,
-                                 framework_version='1.13',
-                                 sagemaker_session=sagemaker_session)
+#tensorflow_serving_model = Model(model_data=model,
+#                                 role=role,
+#                                 framework_version='1.13',
+#                                 sagemaker_session=sagemaker_session)
 
-transformer = tensorflow_serving_model.transformer(
-    instance_count=1,
-    instance_type='ml.m5.large',
-    output_path=output_path
-)
+#transformer = tensorflow_serving_model.transformer(
+#    instance_count=1,
+#    instance_type='ml.m5.large',
+#    output_path=output_path
+#)
 
-transformer.transform(json_test_path, content_type='application/json')
-transformer.wait()
+#transformer.transform(json_test_path, content_type='application/json')
+#transformer.wait()
 
 #print(x_train.shape)
 #print(y_train.shape)

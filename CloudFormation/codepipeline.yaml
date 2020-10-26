@@ -100,21 +100,21 @@ Resources:
               RunOrder: '1'
         - Name: QA
           Actions:
-            - Name: LaunchEndpoint
-              ActionTypeId:
-                Category: Deploy
-                Owner: AWS
-                Provider: CloudFormation
-                Version: '1'
-              InputArtifacts:
-                - Name: bld
-              Configuration:
-                ActionMode: REPLACE_ON_FAILURE
-                RoleArn: !GetAtt [CFNRole, Arn]
-                StackName: !Sub qa-${AWS::StackName}
-                TemplatePath: !Sub "bld::CloudFormation/sagemaker_prediction_endpoint.yaml"
-                TemplateConfiguration: "bld::CloudFormation/configuration_qa.json"
-              RunOrder: '1'
+#            - Name: LaunchEndpoint
+#              ActionTypeId:
+#                Category: Deploy
+#                Owner: AWS
+#                Provider: CloudFormation
+#                Version: '1'
+#              InputArtifacts:
+#                - Name: bld
+#              Configuration:
+#                ActionMode: REPLACE_ON_FAILURE
+#                RoleArn: !GetAtt [CFNRole, Arn]
+#                StackName: !Sub qa-${AWS::StackName}
+#                TemplatePath: !Sub "bld::CloudFormation/sagemaker_prediction_endpoint.yaml"
+#                TemplateConfiguration: "bld::CloudFormation/configuration_qa.json"
+#              RunOrder: '1'
             - Name: TestEndpoint
               ActionTypeId:
                 Category: Test
@@ -125,7 +125,7 @@ Resources:
                 ProjectName: !Ref 'TestEndpointProjectQA'
               InputArtifacts:
                 - Name: bld
-              RunOrder: '2'
+              RunOrder: '1'
         - Name: Production
           Actions:
             - Name: ApprovalGate
@@ -138,21 +138,21 @@ Resources:
                 NotificationArn: !Ref CodePipelineSNSTopic
                 CustomData: !Sub 'Do you want to push your changes to production?'
               RunOrder: '1'
-            - Name: LaunchEndpoint
-              ActionTypeId:
-                Category: Deploy
-                Owner: AWS
-                Provider: CloudFormation
-                Version: '1'
-              InputArtifacts:
-                - Name: bld
-              Configuration:
-                ActionMode: REPLACE_ON_FAILURE
-                RoleArn: !GetAtt [CFNRole, Arn]
-                StackName: !Sub prod-${AWS::StackName}
-                TemplatePath: !Sub "bld::CloudFormation/sagemaker_prediction_endpoint.yaml"
-                TemplateConfiguration: "bld::CloudFormation/configuration_prod.json"
-              RunOrder: '2'
+#            - Name: LaunchEndpoint
+#              ActionTypeId:
+#                Category: Deploy
+#                Owner: AWS
+#                Provider: CloudFormation
+#                Version: '1'
+#              InputArtifacts:
+#                - Name: bld
+#              Configuration:
+#                ActionMode: REPLACE_ON_FAILURE
+#                RoleArn: !GetAtt [CFNRole, Arn]
+#                StackName: !Sub prod-${AWS::StackName}
+#                TemplatePath: !Sub "bld::CloudFormation/sagemaker_prediction_endpoint.yaml"
+#                TemplateConfiguration: "bld::CloudFormation/configuration_prod.json"
+#              RunOrder: '2'
             - Name: TestEndpoint
               ActionTypeId:
                 Category: Test
@@ -163,7 +163,7 @@ Resources:
                 ProjectName: !Ref 'TestEndpointProjectProd'
               InputArtifacts:
                 - Name: bld
-              RunOrder: '3'
+              RunOrder: '2'
 
   ModelTrainingProject:
     Type: AWS::CodeBuild::Project
